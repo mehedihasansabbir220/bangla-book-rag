@@ -58,6 +58,18 @@ class PrefixedE5Embeddings(Embeddings):
         return self._inner.embed_query(apply_e5_prefix(text, self.query_prefix))
 
 
+def _make_huggingface_embeddings(*, local_files_only: bool) -> HuggingFaceEmbeddings:
+    return HuggingFaceEmbeddings(
+        model_name=EMBEDDING_MODEL,
+        model_kwargs={
+            "device": EMBEDDING_DEVICE,
+            "local_files_only": local_files_only,
+        },
+        encode_kwargs={"normalize_embeddings": True},
+        query_encode_kwargs={"normalize_embeddings": True},
+    )
+
+
 def get_embeddings() -> Embeddings:
     """Return a cached local E5 embedding model (CPU by default).
 
@@ -66,12 +78,10 @@ def get_embeddings() -> Embeddings:
     """
     global _embeddings
     if _embeddings is None:
-        inner = HuggingFaceEmbeddings(
-            model_name=EMBEDDING_MODEL,
-            model_kwargs={"device": EMBEDDING_DEVICE},
-            encode_kwargs={"normalize_embeddings": True},
-            query_encode_kwargs={"normalize_embeddings": True},
-        )
+        try:
+            inner = _make_huggingface_embeddings(local_files_only=True)
+        except Exception:
+            inner = _make_huggingface_embeddings(local_files_only=False)
         _embeddings = PrefixedE5Embeddings(inner)
     return _embeddings
 
@@ -87,7 +97,7 @@ def load_embedding_model(model_name: str | None = None) -> Embeddings:
         return get_embeddings()
     inner = HuggingFaceEmbeddings(
         model_name=model_name,
-        model_kwargs={"device": EMBEDDING_DEVICE},
+        model_kwargs={"device": EMBEDDING_DEVICE, "local_files_only": False},
         encode_kwargs={"normalize_embeddings": True},
         query_encode_kwargs={"normalize_embeddings": True},
     )

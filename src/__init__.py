@@ -1,7 +1,7 @@
 """Bangla Book RAG package.
 
-This package will eventually contain the Wikisource crawler, Bengali text
-preprocessing, local embeddings, FAISS indexing, and the RAG pipeline.
+Local pipeline: Wikisource crawler → Bengali preprocessing/chunking →
+multilingual E5 embeddings → FAISS → Ollama generation → Streamlit UI.
 
-Business logic is not implemented yet.
+No paid cloud LLM APIs are used.
 """

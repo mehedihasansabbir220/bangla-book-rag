@@ -67,6 +67,7 @@ class Settings:
     chunk_size: int
     chunk_overlap: int
     top_k: int
+    generation_k: int
     retrieval_threshold: float
 
     @classmethod
@@ -76,7 +77,7 @@ class Settings:
             book_title=_env_str("BOOK_TITLE", "রাজর্ষি"),
             book_url=_env_str(
                 "BOOK_URL",
-                "https://bn.wikisource.org/wiki/রাজর্ষি",
+                "https://bn.wikisource.org/wiki/রাজর্ষি_(১৯৬১)",
             ),
             embedding_model=_env_str(
                 "EMBEDDING_MODEL",
@@ -91,7 +92,10 @@ class Settings:
             chunk_size=_env_int("CHUNK_SIZE", 500),
             chunk_overlap=_env_int("CHUNK_OVERLAP", 100),
             top_k=_env_int("TOP_K", 5),
-            retrieval_threshold=_env_float("RETRIEVAL_THRESHOLD", 0.25),
+            generation_k=_env_int("GENERATION_K", 3),
+            # FAISS IndexFlatL2: lower score = closer. 0.25 was too strict
+            # (in-book L2 ≈ 0.22–0.30, out-of-book ≈ 0.48).
+            retrieval_threshold=_env_float("RETRIEVAL_THRESHOLD", 0.40),
         )
 
 
@@ -108,4 +112,5 @@ OLLAMA_BASE_URL = settings.ollama_base_url
 CHUNK_SIZE = settings.chunk_size
 CHUNK_OVERLAP = settings.chunk_overlap
 TOP_K = settings.top_k
+GENERATION_K = settings.generation_k
 RETRIEVAL_THRESHOLD = settings.retrieval_threshold

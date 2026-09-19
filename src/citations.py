@@ -1,12 +1,7 @@
 """Citation formatting for RAG answers.
 
-Responsibilities (to be implemented later):
-- Turn chunk metadata into human-readable chapter / section / source citations.
-- Deduplicate overlapping sources from multiple retrieved chunks.
-- Produce a consistent citation block for the Streamlit UI and evaluation output.
-
-Every answer must cite the book location it used. If no usable source exists,
-the RAG layer should refuse to answer rather than invent a citation.
+Every grounded answer cites book / chapter / section / source URL from
+retrieved chunk metadata. Citations are never invented.
 """
 
 from __future__ import annotations
@@ -15,25 +10,44 @@ from typing import Any
 
 
 def format_citation(chunk_metadata: dict[str, Any]) -> str:
-    """Format a single chunk's metadata as a citation string.
+    """Format one chunk's metadata as a human-readable citation string."""
+    book = (chunk_metadata.get("book") or "").strip()
+    chapter = (chunk_metadata.get("chapter") or "").strip()
+    section = (chunk_metadata.get("section") or "").strip()
+    url = (chunk_metadata.get("source_url") or "").strip()
 
-    Args:
-        chunk_metadata: Fields such as book title, khondo (volume),
-            poricched (chapter), section, and source URL.
+    parts = [part for part in (book, chapter, section) if part]
+    label = ", ".join(parts) if parts else "নির্বাচিত বই"
+    if url:
+        return f"{label} — {url}"
+    return label
 
-    Returns:
-        A display-ready citation, e.g. "কপালকুণ্ডলা, প্রথম খণ্ড, প্রথম পরিচ্ছেদ".
-    """
-    raise NotImplementedError("Citation formatting is not implemented yet.")
+
+def source_record(chunk: dict[str, Any]) -> dict[str, str]:
+    """Structured citation fields required by the assignment."""
+    meta = chunk.get("metadata") if isinstance(chunk.get("metadata"), dict) else {}
+    return {
+        "book": str(chunk.get("book") or meta.get("book") or ""),
+        "chapter": str(chunk.get("chapter") or meta.get("chapter") or ""),
+        "section": str(chunk.get("section") or meta.get("section") or ""),
+        "source_url": str(chunk.get("source_url") or meta.get("source_url") or ""),
+    }
+
+
+def collect_source_records(chunks: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Unique source records in retrieval order (chapter + URL)."""
+    seen: set[tuple[str, str]] = set()
+    records: list[dict[str, str]] = []
+    for chunk in chunks:
+        record = source_record(chunk)
+        key = (record["chapter"], record["source_url"])
+        if key in seen:
+            continue
+        seen.add(key)
+        records.append(record)
+    return records
 
 
 def collect_citations(chunks: list[dict[str, Any]]) -> list[str]:
-    """Collect unique citations from a list of retrieved chunks.
-
-    Args:
-        chunks: Retrieved chunks with metadata.
-
-    Returns:
-        Deduplicated list of citation strings, in retrieval order.
-    """
-    raise NotImplementedError("Citation collection is not implemented yet.")
+    """Deduplicated display citations in retrieval order."""
+    return [format_citation(record) for record in collect_source_records(chunks)]
