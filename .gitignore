@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local secrets / machine-specific config
+.env
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Generated data (keep folder placeholders)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/vectorstore/*
+!data/vectorstore/.gitkeep
+
+# Hugging Face / model caches (if created inside the repo)
+.cache/
+models/

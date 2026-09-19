@@ -1,0 +1,16 @@
+# Local RAG stack — no paid AI APIs
+requests
+beautifulsoup4
+lxml
+sentence-transformers
+faiss-cpu
+langchain
+langchain-community
+langchain-huggingface
+langchain-ollama
+langchain-text-splitters
+streamlit
+python-dotenv
+unicodedata2
+tqdm
+pyyaml
