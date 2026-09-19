@@ -1,25 +1,39 @@
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+dist/
+build/
 
 # Virtual environments
 .venv/
 venv/
 env/
+ENV/
 
-# Local secrets / machine-specific config
+# Local machine config (keep .env.example)
 .env
 
 # OS / editor
 .DS_Store
 .idea/
 .vscode/
+*.log
 
-# Generated data (keep folder placeholders)
+# Jupyter
+.ipynb_checkpoints/
+
+# Streamlit local secrets (if ever added)
+.streamlit/secrets.toml
+
+# Generated crawl / index artifacts (keep folder placeholders)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
@@ -27,6 +41,16 @@ data/processed/*
 data/vectorstore/*
 !data/vectorstore/.gitkeep
 
-# Hugging Face / model caches (if created inside the repo)
+# FAISS / pickle indexes that might appear outside data/
+*.faiss
+*.pkl
+*.pickle
+
+# Hugging Face / Sentence Transformers / Torch caches inside the repo
 .cache/
+huggingface/
+transformers_cache/
+sentence-transformers/
 models/
+*.bin
+*.safetensors

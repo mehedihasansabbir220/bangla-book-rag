@@ -2,7 +2,7 @@
 
 University assignment: a **local** RAG chatbot over one complete Bengali prose book from [Bengali Wikisource](https://bn.wikisource.org/).
 
-Selected book: **কপালকুণ্ডলা** by বঙ্কিমচন্দ্র চট্টোপাধ্যায় (public domain).
+Selected book: **রাজর্ষি** from [Bengali Wikisource](https://bn.wikisource.org/wiki/রাজর্ষি) (public domain).
 
 This repository is currently a **project skeleton**. Crawler, embeddings, FAISS, RAG, and UI logic are not implemented yet.
 

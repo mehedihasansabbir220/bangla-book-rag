@@ -1,16 +1,17 @@
-# Local RAG stack — no paid AI APIs
+# Python 3.10+
+# Local RAG stack only. Do NOT add openai, anthropic, google-generativeai,
+# or any other paid LLM API SDK.
+
 requests
 beautifulsoup4
 lxml
+python-dotenv
 sentence-transformers
-faiss-cpu
 langchain
 langchain-community
 langchain-huggingface
 langchain-ollama
-langchain-text-splitters
+faiss-cpu
 streamlit
-python-dotenv
-unicodedata2
+numpy
 tqdm
-pyyaml

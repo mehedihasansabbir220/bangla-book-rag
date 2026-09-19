@@ -1,45 +1,108 @@
-"""Central configuration for the Bangla Book RAG project.
+"""Project configuration loaded from environment variables.
 
-Holds paths, model names, chunking defaults, and Wikisource book metadata.
-Later phases may load overrides from environment variables (.env).
+Copy `.env.example` to `.env` to override defaults. Values are read once at
+import time via python-dotenv.
 
-No paid cloud APIs are used. The LLM runs locally via Ollama and embeddings
-run locally via Hugging Face Sentence Transformers.
+This project uses only local models:
+- embeddings: Hugging Face Sentence Transformers
+- LLM: Ollama
+
+No paid cloud LLM API keys are used or required.
 """
 
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
 from pathlib import Path
 
-# Project paths
+from dotenv import load_dotenv
+
+# ---------------------------------------------------------------------------
+# Paths (not env-configurable; derived from the repository layout)
+# ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 VECTORSTORE_DIR = DATA_DIR / "vectorstore"
 
-# Selected book (Bengali Wikisource, public domain)
-BOOK_TITLE = "কপালকুণ্ডলা"
-BOOK_AUTHOR = "বঙ্কিমচন্দ্র চট্টোপাধ্যায়"
-WIKISOURCE_BOOK_URL = (
-    "https://bn.wikisource.org/wiki/"
-    "%E0%A6%95%E0%A6%AA%E0%A6%BE%E0%A6%B2%E0%A6%95%E0%A7%81%E0%A6%A3%E0%A7%8D%E0%A6%A1%E0%A6%B2%E0%A6%BE"
-    "_(%E0%A6%AC%E0%A6%99%E0%A7%8D%E0%A6%95%E0%A6%BF%E0%A6%AE%E0%A6%9A%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A7%8D%E0%A6%B0"
-    "_%E0%A6%9A%E0%A6%9F%E0%A7%8D%E0%A6%9F%E0%A7%8B%E0%A6%AA%E0%A6%BE%E0%A6%A7%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%AF%E0%A6%BC"
-    ",_%E0%A7%A7%E0%A7%AE%E0%A7%AD%E0%A7%A6)"
-)
-
-# Chunking (configurable)
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 50
-
-# Local embedding model (Bengali-capable, runs on CPU)
-EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-small"
+# E5 embedding prefixes are required by intfloat/multilingual-e5-small.
+# They are model constraints, not user settings.
 EMBEDDING_QUERY_PREFIX = "query: "
 EMBEDDING_PASSAGE_PREFIX = "passage: "
 
-# Local LLM via Ollama (no paid API)
-OLLAMA_BASE_URL = "http://localhost:11434"
-OLLAMA_MODEL = "qwen2.5:3b"
+# Load `.env` from the project root so scripts work from any working directory.
+load_dotenv(PROJECT_ROOT / ".env")
 
-# Retrieval
-TOP_K = 4
-SIMILARITY_THRESHOLD = 0.5
+
+def _env_str(name: str, default: str) -> str:
+    """Return a stripped environment string, or default if missing/blank."""
+    value = os.getenv(name)
+    if value is None or value.strip() == "":
+        return default
+    return value.strip()
+
+
+def _env_int(name: str, default: int) -> int:
+    """Return an integer environment value, or default if missing/blank."""
+    return int(_env_str(name, str(default)))
+
+
+def _env_float(name: str, default: float) -> float:
+    """Return a float environment value, or default if missing/blank."""
+    return float(_env_str(name, str(default)))
+
+
+@dataclass(frozen=True)
+class Settings:
+    """Immutable runtime settings for crawling, indexing, and RAG."""
+
+    book_title: str
+    book_url: str
+    embedding_model: str
+    ollama_model: str
+    ollama_base_url: str
+    chunk_size: int
+    chunk_overlap: int
+    top_k: int
+    retrieval_threshold: float
+
+    @classmethod
+    def from_env(cls) -> Settings:
+        """Build settings from process env, falling back to assignment defaults."""
+        return cls(
+            book_title=_env_str("BOOK_TITLE", "রাজর্ষি"),
+            book_url=_env_str(
+                "BOOK_URL",
+                "https://bn.wikisource.org/wiki/রাজর্ষি",
+            ),
+            embedding_model=_env_str(
+                "EMBEDDING_MODEL",
+                "intfloat/multilingual-e5-small",
+            ),
+            ollama_model=_env_str("OLLAMA_MODEL", "qwen2.5:3b"),
+            ollama_base_url=_env_str(
+                "OLLAMA_BASE_URL",
+                "http://localhost:11434",
+            ),
+            chunk_size=_env_int("CHUNK_SIZE", 500),
+            chunk_overlap=_env_int("CHUNK_OVERLAP", 100),
+            top_k=_env_int("TOP_K", 5),
+            retrieval_threshold=_env_float("RETRIEVAL_THRESHOLD", 0.25),
+        )
+
+
+settings = Settings.from_env()
+
+# Module-level names matching the .env variables, for convenient imports:
+#     from src.config import BOOK_URL, CHUNK_SIZE
+BOOK_TITLE = settings.book_title
+BOOK_URL = settings.book_url
+EMBEDDING_MODEL = settings.embedding_model
+OLLAMA_MODEL = settings.ollama_model
+OLLAMA_BASE_URL = settings.ollama_base_url
+CHUNK_SIZE = settings.chunk_size
+CHUNK_OVERLAP = settings.chunk_overlap
+TOP_K = settings.top_k
+RETRIEVAL_THRESHOLD = settings.retrieval_threshold
