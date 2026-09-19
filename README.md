@@ -4,7 +4,7 @@ University assignment: a **local** RAG chatbot over one complete Bengali prose b
 
 Selected book: **রাজর্ষি** from [Bengali Wikisource](https://bn.wikisource.org/wiki/রাজর্ষি) (public domain).
 
-This repository is currently a **project skeleton**. Crawler, embeddings, FAISS, RAG, and UI logic are not implemented yet.
+The Wikisource crawler is implemented. Embeddings, FAISS, RAG, and UI logic are not implemented yet.
 
 ## Constraints
 
@@ -29,17 +29,22 @@ bangla-book-rag/
 └── README.md
 ```
 
-## Setup (later, after logic is implemented)
+## Setup
+
+macOS does not provide a `python` command by default. Use `python3`, or activate the virtualenv (that creates a local `python`).
 
 1. Create a virtualenv and install dependencies:
 
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
-   pip install -r requirements.txt
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
    ```
 
-2. Install [Ollama](https://ollama.com/) and pull the local model:
+   After `source .venv/bin/activate`, the prompt should show `(.venv)` and both `python` and `pip` work.
+
+2. Install [Ollama](https://ollama.com/) and pull the local model (needed later for the chatbot, not for crawling):
 
    ```bash
    ollama pull qwen2.5:3b
@@ -51,15 +56,21 @@ bangla-book-rag/
    cp .env.example .env
    ```
 
-4. Crawl, index, then chat (commands will work once implemented):
+4. Crawl the book (index and chat come later):
 
    ```bash
+   source .venv/bin/activate
    python scripts/crawl_book.py
-   python scripts/build_index.py
-   streamlit run app/streamlit_app.py
    ```
+
+   Without activating the venv:
+
+   ```bash
+   .venv/bin/python scripts/crawl_book.py
+   ```
+
+   Output: `data/raw/book_pages.json` (one object per chapter).
 
 ## Status
 
-Placeholder modules and folders only. Do not expect crawling, retrieval, or chat to run yet.
-# bangla-book-rag
+Crawler works. Do not expect embeddings, retrieval, or chat to run yet.
