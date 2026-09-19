@@ -61,6 +61,7 @@ class Settings:
     book_title: str
     book_url: str
     embedding_model: str
+    embedding_device: str
     ollama_model: str
     ollama_base_url: str
     chunk_size: int
@@ -81,6 +82,7 @@ class Settings:
                 "EMBEDDING_MODEL",
                 "intfloat/multilingual-e5-small",
             ),
+            embedding_device=_env_str("EMBEDDING_DEVICE", "cpu"),
             ollama_model=_env_str("OLLAMA_MODEL", "qwen2.5:3b"),
             ollama_base_url=_env_str(
                 "OLLAMA_BASE_URL",
@@ -100,6 +102,7 @@ settings = Settings.from_env()
 BOOK_TITLE = settings.book_title
 BOOK_URL = settings.book_url
 EMBEDDING_MODEL = settings.embedding_model
+EMBEDDING_DEVICE = settings.embedding_device
 OLLAMA_MODEL = settings.ollama_model
 OLLAMA_BASE_URL = settings.ollama_base_url
 CHUNK_SIZE = settings.chunk_size
