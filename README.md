@@ -4,6 +4,8 @@ A local Retrieval-Augmented Generation (RAG) chatbot that answers questions abou
 
 **No paid AI API key is required.** Embeddings run on the local CPU. Generation uses a local Ollama model.
 
+**Demo video:** [demo/Demo-video.mov](demo/Demo-video.mov) (pipeline, in-book questions, and a no-answer case).
+
 ---
 
 ## 1. Project Overview
@@ -321,6 +323,8 @@ bangla-book-rag/
 │   └── vectorstore/              # index.faiss, index.pkl
 ├── tests/
 │   └── test_questions.json       # 10 questions + expected answers
+├── demo/
+│   └── Demo-video.mov            # Assignment demo (3–5 min)
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
